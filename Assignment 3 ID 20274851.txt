@@ -1,0 +1,77 @@
+/*Oracle SQL*/
+/*Lab Assignment # 3 */
+/*Name # Luyan Deng*/
+/*Last four digits of Student ID # 4581 */
+/*Due date April 27, 2018 */
+/*Date Handed in  May 8th, 2018*/
+
+/*1. Write a query to display employee number, employee name, hiredate, manager's name for those employees, 
+whose manager's name starts with K or M or S. Label the columns Employee Number, Employee Name, Hiredate, Mgr Name.*/
+
+SELECT worker.empno AS "Employee Number", 
+	worker.ename AS "Employee Name",
+	worker.hiredate AS "Hiredate",
+	mgr.ename AS "Mgr Name"
+FROM emp worker
+INNER JOIN emp mgr
+ON worker.mgr=mgr.empno
+WHERE mgr.ename LIKE 'K%' 
+	OR mgr.ename LIKE 'M%'
+	OR mgr.ename LIKE 'S%';
+
+
+/*2. Create a query that will display the employee name, department number, department name and all the 
+employees that work in the same department as a given employee. Give each column an appropriate label.*/
+
+SELECT e.ename AS "Employee Name",e.deptno AS "Dept Num",d.dname AS "Dept Name"
+FROM emp e, dept d
+WHERE e.deptno = d.deptno
+AND e.ename = 'MILLER' 
+AND e.deptno =10;
+
+
+
+/*3. Write a query to display the department name, location of all employees who are clerks.*/
+
+SELECT d.dname AS "Dept Name",d.loc AS "Location",e.job AS "Job"
+FROM emp e, dept d
+WHERE e.deptno= d.deptno(+)
+AND e.job='CLERK'
+UNION ALL
+SELECT d.dname AS "Dept Name",d.loc AS "Location",e.job AS "Job"
+FROM emp e, dept d
+WHERE e.deptno(+)= d.deptno
+AND e.deptno IS NULL
+AND e.job='CLERK';
+
+
+
+/*4. Insert a new row into the department table: department number = 50, department name = training, 
+location = San Francisco. Now create a query to display all the employees in department number 20 and 50. */
+Columns to be displayed are emp number, emp name, dept name, dept location.*/
+
+
+INSERT INTO DEPT VALUES (50,'TRAINING','SAN FRANCISCO');
+
+SELECT e.empno AS "Employee Num",
+	e.ename AS "Employee Name",
+	d.dname AS "Dept Name",
+	d.loc AS "Dept Location"
+FROM emp e
+RIGHT OUTER JOIN dept d
+ON e.deptno = d.deptno
+WHERE d.deptno IN (20,50);
+
+
+/*5. Insert a new row into the emp table - you can choose any values for the fields, but department number 
+should be null. Now create a query to display all the employees and all the departments, using joins.*/
+
+INSERT INTO EMP2 VALUES (7998,'CHASE','ANALYST',7782,'23-JAN-1984',3000,NULL,NULL); 
+
+SELECT e2.ename AS "Employee Name",
+	d.dname AS "Dept Name"
+FROM emp2 e2
+LEFT OUTER JOIN dept d
+ON e2.deptno = d.deptno;
+
+

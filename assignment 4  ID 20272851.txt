@@ -1,0 +1,94 @@
+
+/*Oracle SQL*/
+/*Lab Assignment # 4 */
+/*Name # Luyan Deng*/
+/*Last four digits of Student ID # 4581 */
+/*Due date May 20th, 2018 */
+/*Date Handed in  May 20th, 2018*/
+/*1. Display the manager number and the salary of the lowest paid employee for that manager. 
+Exclude anyone whose manager is not known. Exclude any groups where the minimum salary is less than $1000.
+ Sort the output in descending order of salary.*/
+
+SELECT mgr MgrNumber,MIN(sal)Salary
+FROM emp
+GROUP BY MGR
+HAVING MGR IS NOT NULL
+AND MIN(SAL)>1000
+ORDER BY MIN(SAL) DESC;
+
+
+/*2. Write a query to display the department name, location name, number of employees, and the average salary for all employees in that department. Label the columns dname, loc, Number of People, and Salary, respectively.*/
+
+SELECT d.dname DeptName,d.loc Location,NumofPeople,ROUND(AvgSalary,2)AvgSalary
+FROM dept d
+JOIN (
+SELECT deptno, count(empno)NumofPeople,AVG(sal) AvgSalary
+FROM emp
+GROUP BY deptno)sub
+ON d.deptno=sub.deptno;
+
+CREATE VIEW s AS
+SELECT deptno, count(empno)NumofPeople,AVG(sal) AvgSalary
+FROM emp
+GROUP BY deptno
+SELECT d.dname,d.loc,s.NumofPeople,s.AvgSalary
+FROM dept d, s
+WHERE d.deptno =s.deptno
+
+/*3. Write a query to display department names with salary grade, minimum salary and average commission. For departments with null commission, you should display 0. (salgrade table can be used for getting salary grade).*/
+
+SELECT d.dname DeptName,grade Sal_grade, Min_salary,ROUND(Avg_Commission,2)
+FROM dept d
+JOIN 
+(SELECT AVG(sal+nvl(comm,0))salary, MIN(sal)Min_salary,AVG(nvl(comm,0))Avg_Commission, deptno
+FROM emp
+GROUP BY deptno)sub
+ON d.deptno=sub.deptno
+JOIN salgrade
+ON salary between losal and hisal;
+
+
+/*4. What is difference between COUNT(*), COUNT(col_name), COUNT(DISTINCT(col_name)), COUNT(ALL(col_name))? Explain with examples.*/
+
+/* COUNT(*) is the number of the rows in a table.
+This example returns the total number of rows in table emp.
+SELECT COUNT(*) FROM emp; 
+
+  COUNT(*)
+----------
+        15
+
+ COUNT(col_name) counts the number of not null values in a column.
+This example shows that mgr column has 14 not null values. That means in emp table, 14 employees have manager, and 1 do not.
+
+SELECT COUNT(mgr) FROM emp; 
+COUNT(MGR)
+----------
+        14
+
+ 
+ COUNT(DISTINCT(col_name)) counts the number of unique values in a column and exclude null values.
+
+This example returns the number of unique, notnull values in the mgr column. There are 6 unique,notnull values, indicating 6 managers.
+
+SELECT COUNT(DISTINCT(mgr)) FROM emp;
+COUNT(DISTINCT(MGR))
+--------------------
+                   6
+
+ COUNT(ALL(col_name)) is the same as COUNT(col_name)returns the 
+number of notnull values of a column. 
+
+This example returns the number of notnull values in the mgr column. 
+For instnace:
+SELECT COUNT(ALL(mgr))FROM emp;
+COUNT(ALL(MGR))
+---------------
+             14 */
+
+
+/*5. Display the employee number, name, salary, and salary increase by 15% expressed as a whole number. Label the column New Salary.*/
+
+SELECT empno Employee_num,Ename name,sal Salary, sal*(1.15) New_salary
+FROM emp;
+

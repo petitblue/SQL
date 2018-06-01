@@ -1,0 +1,81 @@
+/*Oracle SQL*/
+/*Lab Assignment # 45 */
+/*Name # Luyan Deng*/
+/*Last four digits of Student ID # 4581 */
+/*Due date May 24th, 2018 */
+/*Date Handed in  May 24th, 2018*/
+
+/*Question 1
+a.Create a query that displays the employees names and indicates the amounts of their salaries through asterisks.
+ Each asterisk signifies hundred dollars. Sort the data in descending order of salary. 
+Label the column EMPLOYEE_AND_THEIR_SALARIES.*/
+
+SELECT ename||' '||RPAD(' ',CAST(SAL/100 AS INTEGER),'*') EMPLOYEE_AND_THEIR_SALARIES
+FROM emp
+ORDER BY sal DESC
+
+
+/*b.Display the employees name, username, hire date, salary and salary review date, which is the first Monday after six months of service. Label the column REVIEW. Format the dates to appear in the format mm/dd/yy. Salary should be rounded. Username is first two letters of the name 
+in the lower case.*/
+
+SELECT ename employee_name, 
+LOWER(RPAD(ename,2)) username,
+TO_CHAR(hiredate,'MM/DD/YY') hiredate,
+ROUND(sal,0) salary,
+TO_CHAR(NEXT_DAY(ADD_MONTHS(hiredate,6),'Monday'),'MM/DD/YY') sal_review_day
+FROM emp
+
+/*c. Use subquery to display all employees, in department location 'BOSTON' with a salary of greater than $1000.*/
+
+SELECT e.ename
+FROM emp e, dept d
+WHERE sal >1000
+AND e.deptno = d.deptno
+AND e.deptno IN (SELECT deptno 
+		FROM dept
+		WHERE loc ='BOSTON')
+
+/*Question 2
+a. Write a query to display the employee name, job, and hire date for all employees who started between 01/01/81 to 12/31/81.
+ Concatenate the name and job together, separated by a space and comma, and label the column Employees.*/
+
+SELECT (TRIM(ename)||', '||job)employees, hiredate
+FROM emp
+WHERE hiredate BETWEEN TO_DATE('01/01/1981', 'MM/DD/YYYY') AND TO_DATE('12/31/1981', 'MM/DD/YYYY');
+
+/*b. Explain the usage of correlated subqueries, inline views with an example.
+A correlated subquery references at least one column from the outer query, so it is driven by the outer query. 
+The outer query rans first and the correlated subquery runs once for every row in the outer query. 
+In a uncorrelated subqueries, the inner query only run once and the information is passed to the outer query. 
+But with correlated subquery, the inner query runs on information provided by the outer query.
+Correlated query is often used to test EXISTS booleans. The EXISTS operator test for existence of rows in the 
+result set of subquery. The EXISTS operator returns TRUE or FALSE depending on the number of rows returned by the subquery.
+For example we can find employees who have at least one person to report to:*/
+SELECT e1.ename
+FROM emp e1
+WHERE EXISTS(SELECT empno,ename,mgr
+FROM emp
+WHERE e1.mgr=emp.empno)
+
+/*For example, we can use NOT EXISTS query to return all the employees have no departments.*/
+SELECT ename,deptno
+FROM emp2
+WHERE NOT EXISTS(SELECT *FROM dept
+WHERE emp2.deptno=dept.deptno)
+/*In the example, the subquery references the deptno in the outer query. The value of the deptno changes 
+by row of the outer query, so the database must rerun the subquery for each row comparison. 
+That will impact the execution time of query.
+
+An inline view is a SELECT statement in the FROM clause of a containing SELECT statement.
+For example, we can return the number of employees in each department. */
+SELECT d.dname, emp_cnt.num
+FROM dept d,
+(SELECT COUNT(*) num, deptno
+FROM emp
+GROUP BY deptno) emp_cnt
+WHERE d.deptno=emp_cnt.deptno
+/*An inline view is often used when we need to combine data at different levels of aggregation. 
+In the above example, we retrieve all rows of the department table and aggregated data from the employee table. 
+We do the aggregation in the inline view and join the results to the department table. When we encounter data extraction, 
+transformation, and load application that requires different levels of aggregations combined, we can produce a result in a 
+single query with the inline view rather than multiple statements*/
